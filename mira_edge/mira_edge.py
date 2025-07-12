@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Callable
 
-from mira_edge.mira_protocol import Frame, Header
+from mira_edge.mira_protocol import MIRA_BROADCAST_ADDRESS, Frame, Header
 from mira_edge.model import EdgeEvent, GatewayInfo, MiraGateway, MiraNode
 from mira_edge.protocol import ProtocolPayloadParserException
 from mira_edge.serial_adapter import SerialAdapter
@@ -86,4 +86,7 @@ class MiraEdge:
         self.serial_interface.send_data(uart_frame)
         if node := self.gateway.get_node(dst):
             node.register_sent_frame(mira_frame)
+        elif dst == MIRA_BROADCAST_ADDRESS:
+            for node in self.gateway.nodes:
+                node.register_sent_frame(mira_frame)
         self.gateway.register_sent_frame(mira_frame)
